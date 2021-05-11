@@ -1,0 +1,1 @@
+forfiles /M *mid /C "cmd /c midicsv @fname.mid @fname.csv"
