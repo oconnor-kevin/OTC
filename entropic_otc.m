@@ -15,7 +15,7 @@ g = g_old-10*tol;
 P = get_ind_tc(Px, Py);
 times = [];
 iter_ctr = 0;
-while mean(g_old) - mean(g) > tol
+while g_old(1) - g(1) > tol
     iter_ctr = iter_ctr + 1;
     fprintf('EntropicOTC Iteration: %d\n', iter_ctr);
     P_old = P;
@@ -27,7 +27,7 @@ while mean(g_old) - mean(g) > tol
     
     % Approximate transition coupling evaluation.
     [g, h] = approx_tce(P, c, L, T);
-    disp(min(g));
+    disp(g(1));
     
     % Entropic transition coupling improvement.
     P = entropic_tci(h, P_old, Px, Py, xi, sink_iter);
