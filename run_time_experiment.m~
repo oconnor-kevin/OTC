@@ -1,17 +1,28 @@
 %%
 % run_time_experiment.m
 %
-% Run time experiment comparing exact_otc and entropic_otc.
+% Run time experiment comparing exact_otc and approx_otc.
 
-% xi=75, sink_iter=50
-% xi=100, sink_iter=100
+
+% d = 10, xi=10, sink_iter=10
+% d = 20, xi=12, sink_iter=10
+% d = 30, xi=14, sink_iter=10
+% d = 40, xi=15, sink_iter=10
+% d = 50, xi=15, sink_iter=10
+% d = 60, xi=15, sink_iter=10
+% d = 70, xi=15, sink_iter=10
+
 % xi=200, sink_iter=200
+% xi=100, sink_iter=100
+% xi=75, sink_iter=50
+% xi=50, sink_iter=25
+% xi=1, sink_iter=10
 
 % Algorithm parameters.
 L = 100;
 T = 1000;
-xi = 75;
-sink_iter = 50;
+xi = 50;
+sink_iter = 25;
 tol = 0.001;
 
 % Run experiments.
@@ -22,9 +33,12 @@ exact_times = zeros(dim_range, n_iters);
 exact_costs = zeros(dim_range, n_iters);
 entropic_times = zeros(dim_range, n_iters);
 entropic_costs = zeros(dim_range, n_iters);
+greedy_times = zeros(dim_range, n_iters);
+greedy_costs = zeros(dim_range, n_iters);
 run_exact = 1;
 run_entropic = 1;
-
+run_greedy = 1;
+sparse_cost = 1;
 for dim_iter=1:dim_range
     for iter=1:n_iters
         % Set dimension.
@@ -33,6 +47,9 @@ for dim_iter=1:dim_range
         % Simulate marginals and cost.
         c = abs(normrnd(0, 1, d, d));
         c = c ./ max(max(c));
+        if sparse_cost
+            c = exp(20*c)./max(max(exp(20*c)));            
+        end
         
         Px = normrnd(0, 1, d, d);
         Px = exp(tau*Px)./sum(exp(tau*Px),2);
@@ -60,25 +77,35 @@ for dim_iter=1:dim_range
             iter_costs_exact = exact_sol^100*reshape(c', d^2, []);
             exact_costs(dim_iter, iter) = min(iter_costs_exact);
         end
-        if run_entropic
-            iter_costs_entropic = entropic_sol^100*reshape(c', d^2, []);
-            entropic_costs(dim_iter, iter) = iter_costs_entropic(1);
+        if run_approx
+            iter_costs_approx = approx_sol^100*reshape(c', d^2, []);
+            approx_costs(dim_iter, iter) = iter_costs_approx(1);
         end
+        if run_greedy
+            iter_costs_greedy = greedy_sol^100*reshape(c', d^2, []);
+            greedy_costs(dim_iter, iter) = min(iter_costs_greedy);
+        end
+
 
         % Print data.
         disp('d');
         disp(d);
         if run_exact
-            disp('ExactOTC');
+            disp('Exact');
             disp(iter_times_exact);
             disp(sum(iter_times_exact));
             disp(min(iter_costs_exact));
         end
-        if run_entropic
-            disp('EntropicOTC');
-            disp(iter_times_entropic);
-            disp(sum(iter_times_entropic));
-            disp(iter_costs_entropic(1));
+        if run_approx
+            disp('Approx');
+            disp(iter_times_approx);
+            disp(sum(iter_times_approx));
+            disp(iter_costs_approx(1));
+        end
+        if run_greedy
+            disp('Greedy');
+            disp(iter_times_greedy);
+            disp(min(iter_costs_greedy));
         end
     end
 end
@@ -88,17 +115,24 @@ experiment_id.Format = 'yyyy_MM_dd_HH_mm_ss';
 experiment_id = string(experiment_id);
 experiment_id = append(experiment_id, '_xi', string(xi), '_sinkiter', string(sink_iter), '_tol', string(tol));
 exact_costs_file_name = append('runtime_exp_', experiment_id, '_exact_costs.csv');
-entropic_costs_file_name = append('runtime_exp_', experiment_id, '_entropic_costs.csv');
+approx_costs_file_name = append('runtime_exp_', experiment_id, '_approx_costs.csv');
+greedy_costs_file_name = append('runtime_exp_', experiment_id, '_greedy_costs.csv');
 exact_times_file_name = append('runtime_exp_', experiment_id, '_exact_times.csv');
-entropic_times_file_name = append('runtime_exp_', experiment_id, '_entropic_times.csv');
+approx_times_file_name = append('runtime_exp_', experiment_id, '_approx_times.csv');
+greedy_times_file_name = append('runtime_exp_', experiment_id, '_greedy_times.csv');
+
 
 if run_exact
     csvwrite(exact_costs_file_name, exact_costs);
     csvwrite(exact_times_file_name, exact_times);
 end
-if run_entropic
-    csvwrite(entropic_costs_file_name, entropic_costs);    
-    csvwrite(entropic_times_file_name, entropic_times);
+if run_approx
+    csvwrite(approx_costs_file_name, approx_costs);    
+    csvwrite(approx_times_file_name, approx_times);
+end
+if run_greedy
+    csvwrite(greedy_costs_file_name, greedy_costs);
+    csvwrite(greedy_times_file_name, greedy_times);
 end
     
 
