@@ -24,16 +24,9 @@ for i=1:dx
        else
            sol = logsinkhorn(K(x_idxs, y_idxs), dist_x(x_idxs)', dist_y(y_idxs), sink_iter);
            sol_full = zeros(dx, dy);
-           for idx1=1:length(x_idxs)
-               for idx2=1:length(y_idxs)
-                   sol_full(x_idxs(idx1), y_idxs(idx2)) = sol(idx1, idx2);
-               end
-           end
+           sol_full(x_idxs, y_idxs) = sol;
            P(dy*(i-1)+j,:) = reshape(sol_full', [], dx*dy);
        end
     end
-end
-if max(max(abs(P0*h-P*h))) < 1e-10
-    P = P0;
 end
 end
