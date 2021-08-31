@@ -4,7 +4,8 @@ library(stringr)
 library(latex2exp)
 library(scales)
 
-datadir <- "C:\\Users\\oconn\\Dropbox\\Research\\OTC_Experiments\\Data"
+#datadir <- "C:\\Users\\oconn\\Dropbox\\Research\\OTC_Experiments\\Data"
+datadir <- "/Users/kevinoconnor/Dropbox/Research/OTC_Experiments/Data"
 file <- "runtime_exp_2021_08_31_02_26_08_results.csv"
 options(stringsAsFactors=FALSE)
 
@@ -97,5 +98,5 @@ ggplot(error_data,
   labs(group = "xi",
        color = TeX('$\\xi$'),
        y = expression(Error~("10"^"-3")))
-ggsave(file.path(datadir, paste0("error_plot_", plot_id, ".png")))
+ggsave(file.path(datadir, paste0("error_plot_", plot_id, ".png")), width=8, height=5)
 
