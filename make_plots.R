@@ -42,32 +42,8 @@ runtime_data <- all_data %>%
 
 ## Make plots
 plot_id <- format(Sys.time(), "%m-%d-%y_%H-%M-%S")
-# Times
-ggplot(runtime_data, 
-       aes(x=d, y=mean_runtime/1e3, group=factor(xi), color=factor(xi))) + 
-  geom_line(size=2) + 
-  geom_point(size=2) + 
-  geom_errorbar(aes(ymin=min_time_diff/1e3, 
-                    ymax=max_time_diff/1e3),
-                width=1,
-                size=1) +
-  theme_minimal() +
-  theme(legend.position = c(0.1,0.75),
-        legend.title = element_text(size=20), 
-        legend.text = element_text(size=18),
-        legend.title.align=0.5,
-        legend.box.background = element_rect(colour="black"),
-        plot.title = element_text(size=20, face="bold"),
-        axis.text = element_text(size=18),
-        axis.title = element_text(size=18, face="bold"))+
-  ggtitle("Difference in Runtime") + 
-  labs(group = "xi",
-       color = TeX('$\\xi$'),
-       y = expression(Difference~"in"~Runtime~("10"^"3"~s)))
-ggsave(file.path(homedir, paste0("runtime_diff_plot_", plot_id, ".png")))
 
-
-# Runtime plot with simplified legend
+# Plot runtimes
 alg <- ifelse(runtime_data$Xi=="Inf", "Exact", "Entropic")
 alg_factor <- interaction(factor(runtime_data$Xi), factor(alg, levels=c("Exact", "Entropic")))
 ggplot(runtime_data, 
@@ -97,9 +73,9 @@ ggplot(runtime_data,
     color = "Algorithm",
     y = expression(Runtime~("10"^"3"~s))) + 
   guides(linetype=FALSE)
-ggsave(file.path(homedir, paste0("runtime_plot_", plot_id, ".png")), width=8, height=5)
+ggsave(file.path(datadir, paste0("runtime_plot_", plot_id, ".png")), width=8, height=5)
 
-# Errors
+# Plot errors
 ggplot(error_data, 
        aes(x=d, y=Mean_Error*1e3, group=factor(Xi), color=factor(Xi))) + 
   geom_line(size=2) + 
@@ -121,5 +97,5 @@ ggplot(error_data,
   labs(group = "xi",
        color = TeX('$\\xi$'),
        y = expression(Error~("10"^"-3")))
-ggsave(file.path(homedir, paste0("error_plot_", plot_id, ".png")))
+ggsave(file.path(datadir, paste0("error_plot_", plot_id, ".png")))
 
