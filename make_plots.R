@@ -2,111 +2,86 @@ library(ggplot2)
 library(dplyr)
 library(stringr)
 library(latex2exp)
+library(scales)
 
-homedir <- "/Users/kevinoconnor/Documents/Research/OptimalJoinings/OT_via_PIA"
-datadir <- file.path(homedir, "Data")
+datadir <- "C:\\Users\\oconn\\Dropbox\\Research\\OTC_Experiments\\Data"
+file <- "runtime_exp_2021_08_31_02_26_08_results.csv"
 options(stringsAsFactors=FALSE)
 
 ## Read Data.
-xi_to_keep <- c(75, 100, 200)
-files_vec <- list.files(datadir)
-# Subset to csv files.
-is_csv <- sapply(files_vec, function(x){grepl(".csv", x)})
-files_vec <- files_vec[is_csv]
-# Aggregate data.
-all_data <- data.frame("measure"=character(),
-                       "algorithm"=character(),
-                       "d"=integer(),
-                       "xi"=integer(),
-                       "sinkiter"=integer(),
-                       "value"=double())
-for (file in files_vec){
-  # Get parameters
-  xi <- as.numeric(str_match(file, "xi(.*?)_")[2])
-  if (xi %in% xi_to_keep){
-    is_approx <- grepl("approx", file)
-    is_cost <- grepl("costs", file)
-    algorithm <- ifelse(is_approx, "FastEntropicOTC", "ExactOTC")
-    measure <- ifelse(is_cost, "Costs", "Runtimes")
-    sinkiter <- as.numeric(str_match(file, "sinkiter(.*?)_")[2])
-    # Get file data
-    file_data <- read.csv(file.path(datadir, file), header=FALSE, stringsAsFactors=FALSE)
-    # Append to dataframe
-    for (r in 1:nrow(file_data)){
-      for (c in 1:ncol(file_data)){
-        d <- r*10
-        all_data <- rbind(all_data, list("measure"=measure, 
-                                         "algorithm"=algorithm, 
-                                         "d"=d, 
-                                         "xi"=xi, 
-                                         "sinkiter"=sinkiter, 
-                                         "value"=file_data[r, c]))
-      }
-    }
-  }
-}
+all_data <- read.csv(file.path(datadir, file), header=TRUE, stringsAsFactors=FALSE)
+head(all_data)
 
 ## Wrangle data
-# Cost data
-cost_data <- all_data %>% filter(measure=="Costs")
-error_vec <- filter(cost_data, algorithm=="FastEntropicOTC")$"value" - 
-  filter(cost_data, algorithm=="ExactOTC")$"value"
-error_data <- cost_data %>% 
-  filter(algorithm=="FastEntropicOTC") %>%
-  select("d", "xi", "sinkiter")
-error_data$"error" <- error_vec
+runs_per_iter <- length(unique(all_data$Xi))
+n_dims <- length(unique(all_data$d))
+total_runs <- nrow(all_data)
+n_iters <- total_runs / (n_dims*runs_per_iter)
+iters <- rep(rep(1:n_iters, each=runs_per_iter), n_dims)
+all_data$Iter <- iters
+
+# Error data
+error_data <- all_data %>%
+  group_by(d, Iter) %>% 
+  mutate(Error=Cost-Cost[Algorithm=="ExactOTC"])
 error_data <- error_data %>%
-  group_by(d, xi) %>%
-  summarise("mean_error"=mean(error),
-            "max_error"=max(error),
-            "min_error"=min(error))
+  group_by(d, Xi) %>%
+  summarise(
+    "Mean_Error"=mean(Error),
+    "Max_Error"=max(Error),
+    "Min_Error"=min(Error)
+  ) %>%
+  filter(Xi != "Inf")
+
 # Runtime data
-time_data <- all_data %>% filter(measure=="Runtimes")
-runtime_diff_vec <- filter(time_data, algorithm=="ExactOTC")$"value" - 
-  filter(time_data, algorithm=="FastEntropicOTC")$"value"
-runtime_diff_data <- time_data %>%
-  filter(algorithm=="FastEntropicOTC") %>%
-  select("d", "xi", "sinkiter")
-runtime_diff_data$"time_diff" <- runtime_diff_vec
-runtime_diff_data <- runtime_diff_data %>% 
-  group_by(d, xi) %>% 
-  summarise("mean_time_diff"=mean(time_diff),
-            "max_time_diff"=max(time_diff),
-            "min_time_diff"=min(time_diff))
+runtime_data <- all_data %>% 
+  group_by(d, Xi) %>% 
+  summarise("Mean_Runtime"=mean(Runtime),
+            "Max_Runtime"=max(Runtime),
+            "Min_Runtime"=min(Runtime))
 
 ## Make plots
 plot_id <- format(Sys.time(), "%m-%d-%y_%H-%M-%S")
-# Times
-ggplot(runtime_diff_data, 
-       aes(x=d, y=mean_time_diff/1e3, group=factor(xi), color=factor(xi))) + 
+
+# Plot runtimes
+alg <- ifelse(runtime_data$Xi=="Inf", "Exact", "Entropic")
+alg_factor <- interaction(factor(runtime_data$Xi), factor(alg, levels=c("Exact", "Entropic")))
+ggplot(runtime_data, 
+       aes(x=d, y=Mean_Runtime/1e3, color=alg_factor)) + 
+  #geom_line(aes(linetype=factor(alg, levels=c("Exact", "Entropic"))), size=2) + 
   geom_line(size=2) + 
   geom_point(size=2) + 
-  geom_errorbar(aes(ymin=min_time_diff/1e3, 
-                    ymax=max_time_diff/1e3),
+  geom_errorbar(aes(ymin=Min_Runtime/1e3, 
+                    ymax=Max_Runtime/1e3),
                 width=1,
                 size=1) +
   theme_minimal() +
-  theme(legend.position = c(0.1,0.75),
+  theme(legend.position = c(0.25,0.65),
         legend.title = element_text(size=20), 
         legend.text = element_text(size=18),
         legend.title.align=0.5,
+        legend.text.align = 0,
         legend.box.background = element_rect(colour="black"),
         plot.title = element_text(size=20, face="bold"),
         axis.text = element_text(size=18),
         axis.title = element_text(size=18, face="bold"))+
-  ggtitle("Difference in Runtime") + 
-  labs(group = "xi",
-       color = TeX('$\\xi$'),
-       y = expression(Difference~"in"~Runtime~("10"^"3"~s)))
-ggsave(file.path(homedir, paste0("runtime_diff_plot_", plot_id, ".png")))
+  scale_color_manual(
+    values=c("Inf.Exact"="black", "75.Entropic"=hue_pal()(3)[1], "100.Entropic"=hue_pal()(3)[2], "200.Entropic"=hue_pal()(3)[3]),
+    labels=unname(TeX(c("ExactOTC", "EntropicOTC, $\\xi$=75", "EntropicOTC, $\\xi$=100", "EntropicOTC, $\\xi$=200")))) + 
+  ggtitle("Runtime") + 
+  labs(
+    color = "Algorithm",
+    y = expression(Runtime~("10"^"3"~s))) + 
+  guides(linetype=FALSE)
+ggsave(file.path(datadir, paste0("runtime_plot_", plot_id, ".png")), width=8, height=5)
 
-# Errors
+# Plot errors
 ggplot(error_data, 
-       aes(x=d, y=mean_error*1e3, group=factor(xi), color=factor(xi))) + 
+       aes(x=d, y=Mean_Error*1e3, group=factor(Xi), color=factor(Xi))) + 
   geom_line(size=2) + 
   geom_point(size=2) + 
-  geom_errorbar(aes(ymin=min_error*1e3, 
-                    ymax=max_error*1e3),
+  geom_errorbar(aes(ymin=Min_Error*1e3, 
+                    ymax=Max_Error*1e3),
                 width=1,
                 size=1) +
   theme_minimal() +
@@ -118,9 +93,9 @@ ggplot(error_data,
         plot.title = element_text(size=20, face="bold"),
         axis.text = element_text(size=18),
         axis.title = element_text(size=18, face="bold"))+
-  ggtitle("Error of FastEntropicOTC") + 
+  ggtitle("Error of EntropicOTC") + 
   labs(group = "xi",
        color = TeX('$\\xi$'),
        y = expression(Error~("10"^"-3")))
-ggsave(file.path(homedir, paste0("error_plot_", plot_id, ".png")))
+ggsave(file.path(datadir, paste0("error_plot_", plot_id, ".png")))
 
