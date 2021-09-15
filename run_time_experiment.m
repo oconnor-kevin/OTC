@@ -12,10 +12,8 @@ xi_vec = [75 100 200];
 sink_iter_vec = [50 100 200];
 
 % Experiment parameters
-%n_iters = 5;
-%d_vec = [10 20 30 40 50 60 70 80 90 100];
 n_iters = 5;
-d_vec = [10 20];
+d_vec = [10 20 30 40 50 60 70 80 90 100];
 tau = 0.1;
 results = cell2table(cell(0,9), 'VariableNames', {'d', 'Algorithm', 'Xi', 'Tau', 'L', 'T', 'Sink_Iter', 'Cost', 'Runtime'});;
 
