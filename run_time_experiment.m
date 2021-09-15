@@ -12,8 +12,10 @@ xi_vec = [75 100 200];
 sink_iter_vec = [50 100 200];
 
 % Experiment parameters
+%n_iters = 5;
+%d_vec = [10 20 30 40 50 60 70 80 90 100];
 n_iters = 5;
-d_vec = [10 20 30 40 50 60 70 80 90 100];
+d_vec = [10 20];
 tau = 0.1;
 results = cell2table(cell(0,9), 'VariableNames', {'d', 'Algorithm', 'Xi', 'Tau', 'L', 'T', 'Sink_Iter', 'Cost', 'Runtime'});;
 
@@ -50,10 +52,14 @@ for d=d_vec
         for idx=1:length(xi_vec)
             xi = xi_vec(idx);
             sink_iter = sink_iter_vec(idx);
-            [cost_entropic, entropic_sol, times_entropic_vec] = entropic_otc(Px, Py, c, L, T, xi, sink_iter, 1);
+            [~, entropic_sol, times_entropic_vec] = entropic_otc(Px, Py, c, L, T, xi, sink_iter, 1);
 
             % Save runtime
             time_entropic = sum(times_entropic_vec);
+            
+            % Save cost
+            [cost_entropic_vec, ~] = exact_tce(entropic_sol, c);
+            cost_entropic = min(cost_entropic_vec);
 
             disp('EntropicOTC');
             disp(['Xi: ', num2str(xi)]);
