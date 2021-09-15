@@ -1,8 +1,7 @@
 %%
 % exact_tci.m
 %
-% Given bias and gain vectors g and h, returns an improved transition
-% coupling.
+% Exact transition coupling improvement.
 
 function P = exact_tci(g, h, P0, Px, Py)
 x_sizes = size(Px);

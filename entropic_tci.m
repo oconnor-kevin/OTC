@@ -1,8 +1,7 @@
 %%
 % entropic_tci.m
 %
-% Given bias and gain vectors g and h, uses entropic OT to find an
-% approximately improved transition coupling.
+% Entropic transition coupling improvement.
 
 function P = entropic_tci(h, P0, Px, Py, xi, sink_iter)
 dx = size(Px, 1);
