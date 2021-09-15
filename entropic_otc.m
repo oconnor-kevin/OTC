@@ -1,10 +1,9 @@
 %%
 % entropic_otc.m
 %
-% Run approximate transition coupling iteration to get the optimal 
-% transition coupling.
+% Entropic transition coupling iteration.
 
-function [P, times] = entropic_otc(Px, Py, c, L, T, xi, sink_iter, time_iters)
+function [exp_cost, P, times] = entropic_otc(Px, Py, c, L, T, xi, sink_iter, time_iters)
 dx = size(Px, 1);
 dy = size(Py, 1);
 max_c = max(max(c));
@@ -27,7 +26,8 @@ while g_old(1) - g(1) > tol
     
     % Approximate transition coupling evaluation.
     [g, h] = approx_tce(P, c, L, T);
-    disp(g(1));
+    exp_cost = g(1);
+    disp(exp_cost);
     
     % Entropic transition coupling improvement.
     P = entropic_tci(h, P_old, Px, Py, xi, sink_iter);
