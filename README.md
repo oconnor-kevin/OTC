@@ -26,6 +26,9 @@ Similarly, if you wish to run EntropicOTC with parameters xi, L, T, and sink_ite
 
 Like the exact algorithm, the last argument may be switched to 1 to time each iteration.
 
+## Reproducing Experimental Results
+The code for reproducing the experimental results described in the paper are included in `run_time_experiment.m` and `music_experiment.m`. Any necessary parameters for either experiment may be set at the top of the respective script. After doing this, you can run the entire script to run the experiment. All relevant results will be saved automatically.
+
 ## Citing this Repo
 If you wish to refer to our results or code, please cite our paper as follows:
 ```
