@@ -26,7 +26,6 @@ for i=1:length(file_list)
     end
 end
 song_list = unique(song_list);
-song_list = song_list(1:5);  % Short list for testing
 
 composer_list = [];
 key_list = [];
@@ -40,10 +39,6 @@ end
 n_songs = length(song_list);
 exp_costs = cell(n_songs*(n_songs - 1)/2, 4);
 song_iter = 0;
-
-experiment_id = datetime('now');
-experiment_id.Format = 'yyyy_MM_dd_HH_mm_ss';
-experiment_id = string(experiment_id);
 
 for song1_idx=1:length(song_list)
     for song2_idx=(song1_idx+1):length(song_list)
@@ -170,7 +165,7 @@ for song1_idx=1:length(song_list)
         %cost_entropicotc = dot(get_stat_dist(optcoup_entropicotc), c_vec);
         entropic_gain = exact_tce(optcoup_entropicotc, c);
         cost_entropicotc = entropic_gain(1);
-        exp_costs(song_iter,:) = {song1_str song2_str cost_exactotc cost_entropicotc};
+        exp_costs(song_iter,:) = {cost_exactotc cost_entropicotc};
         
         %% Draw samples from each optimal transition coupling
         % Draw random samples
@@ -204,19 +199,19 @@ for song1_idx=1:length(song_list)
         %% Convert notes to midi file
         file_path = 'C:\Users\oconn\Dropbox\Research\OTC_Experiments\ClassicalMusic\GeneratedPieces';
         
-        file_name = strcat(song1_str, song2_str, experiment_id, '_exact_otc');
+        file_name = strcat(song1_str, song2_str, 'exact_otc');
         notes_to_midi(notes_exactotc, file_path, file_name);
 
-        file_name = strcat(song1_str, song2_str, experiment_id, '_entropic_otc');
+        file_name = strcat(song1_str, song2_str, 'entropic_otc');
         notes_to_midi(notes_entropicotc, file_path, file_name);
     end   
 end
 
 % Save expected costs
 exp_costs_table = cell2table(exp_costs);
-exp_costs_table.Properties.VariableNames = {'piece1' 'piece2' 'exactotc_cost' 'entropicotc_cost'};
+exp_costs_table.Properties.VariableNames = {'exactotc_cost' 'entropicotc_cost'};
 disp(exp_costs_table);
-writetable(exp_costs_table, append('music_exp_', experiment_id, '_expcosts.csv'));
+writetable(exp_costs_table,'expcosts.csv');
 
 %% Clustering
 
@@ -238,9 +233,15 @@ for idx1=1:n_songs
 end
 
 % Save distance matrices
+experiment_id = datetime('now');
+experiment_id.Format = 'yyyy_MM_dd_HH_mm_ss';
+experiment_id = string(experiment_id);
+file_name = append('runtime_exp_', experiment_id, '_results.csv');
+writetable(results, file_name);
+
 writecell(song_list, append('music_exp_', experiment_id, '_song_list_.csv'));
 writecell(key_list, append('music_exp_', experiment_id, '_key_list_.csv'));
 writecell(composer_list, append('music_exp_', experiment_id, '_composer_list_.csv'));
-writematrix(exactotc_distances, append('music_exp_', experiment_id, '_exactotc_distmat.csv'));
-writematrix(entropicotc_distances, append('music_exp_', experiment_id, '_entropicotc_distmat.csv'));
+writematrix(exactotc_distances, append('music_exp_', experiment_id, '_exactotc.csv'));
+writematrix(entropicotc_distances,'entropicotc_distance_matrix.csv');
 

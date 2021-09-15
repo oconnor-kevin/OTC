@@ -11,6 +11,7 @@ tol = 1e-5*max_c;
 
 g_old = max_c*ones(dx*dy, 1);
 g = g_old-10*tol;
+exp_cost = 0;
 P = get_ind_tc(Px, Py);
 times = [];
 iter_ctr = 0;

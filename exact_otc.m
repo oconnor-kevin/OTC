@@ -9,6 +9,7 @@ dy = size(Py, 1);
 
 P_old = zeros(dx*dy);
 P = get_ind_tc(Px, Py);
+exp_cost = 0;
 times = [];
 iter_ctr = 0;
 while max(max(abs(P-P_old))) > 1e-10
