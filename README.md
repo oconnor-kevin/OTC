@@ -4,6 +4,29 @@ This repository contains the code from the paper "Optimal Transport for Stationa
 
 Most of the functions in the `ot_algorithms` folder are adaptations of functions provided [here](https://github.com/JasonAltschuler/OptimalTransportNIPS17). The code for training the classical music HMMs is adapted from code provided [here](https://github.com/aky4wn/Classical-Music-Composition-Using-State-Space-Models). MIDI files were converted to MP3 files using https://onlinesequencer.net/.
 
+
+## Running ExactOTC and EntropicOTC
+In order to run ExactOTC for transition matrices Px and Py with a cost matrix c, simply run
+
+```
+[exp_cost, P, ~] = exact_otc(Px, Py, c, 0)
+```
+
+Note that the last argument indicates whether the runs should be timed. If you would like to time each iteration, run
+
+```
+[exp_cost, P, times] = exact_otc(Px, Py, c, 1)
+```
+
+Similarly, if you wish to run EntropicOTC with parameters xi, L, T, and sink_iter, simply run
+
+```
+[exp_cost, P, ~] = entropic_otc(Px, Py, c, L, T, xi, sink_iter, 0)
+```
+
+Like the exact algorithm, the last argument may be switched to 1 to time each iteration.
+
+## Citing this Repo
 If you wish to refer to our results or code, please cite our paper as follows:
 ```
 @article{o2020optimal,
