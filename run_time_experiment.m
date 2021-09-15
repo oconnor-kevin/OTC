@@ -1,7 +1,7 @@
 %%
 % run_time_experiment.m
 %
-% Run time experiment comparing exact_otc and entropic_otc.
+% Runtime experiment comparing ExactOTC and EntropicOTC.
 
 rng(315);
 
@@ -32,14 +32,10 @@ for d=d_vec
         Py = exp(tau*Py)./sum(exp(tau*Py),2);
 
         %% Run ExactOTC
-        [exact_sol, times_exact_vec] = exact_otc(Px, Py, c, 1);
+        [cost_exact, exact_sol, times_exact_vec] = exact_otc(Px, Py, c, 1);
 
         % Save runtime
         time_exact = sum(times_exact_vec);
-
-        % Save cost
-        [cost_exact_vec, ~] = exact_tce(exact_sol, c);
-        cost_exact = min(cost_exact_vec);
 
         disp('ExactOTC');
         disp('Runtimes: ');
@@ -54,14 +50,10 @@ for d=d_vec
         for idx=1:length(xi_vec)
             xi = xi_vec(idx);
             sink_iter = sink_iter_vec(idx);
-            [entropic_sol, times_entropic_vec] = entropic_otc(Px, Py, c, L, T, xi, sink_iter, 1);
+            [cost_entropic, entropic_sol, times_entropic_vec] = entropic_otc(Px, Py, c, L, T, xi, sink_iter, 1);
 
             % Save runtime
             time_entropic = sum(times_entropic_vec);
-
-            % Save cost
-            [cost_entropic_vec, ~] = exact_tce(entropic_sol, c);
-            cost_entropic = min(cost_entropic_vec);
 
             disp('EntropicOTC');
             disp(['Xi: ', num2str(xi)]);
