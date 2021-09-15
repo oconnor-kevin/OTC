@@ -4,9 +4,8 @@
 % Take a sequence of piano keys and save a midi file containing those keys.
 
 function notes_to_midi(notes, file_path, file_name)
-    cd(file_path);
     n_notes = length(notes);
-    fid = fopen(strcat(file_name, '.csv'), 'w');
+    fid = fopen(strcat(file_path, file_name, '.csv'), 'w');
     dur = 228;
     
     % Write header.
@@ -36,5 +35,5 @@ function notes_to_midi(notes, file_path, file_name)
     fclose(fid);
     
     % Convert CSV to MIDI
-    system(strcat("C:\Users\oconn\Dropbox\Research\OTC_Experiments\ClassicalMusic\csvmidi.exe", {' '}, strcat(file_name, ".csv"), {' '}, strcat(file_name, ".mid")));
+    system(strcat('ClassicalMusic\csvmidi.exe', {' '}, strcat(file_path, file_name, '.csv'), {' '}, strcat(file_path, file_name, '.mid')));
 end

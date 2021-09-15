@@ -3,6 +3,7 @@
 %
 
 % Experiment parameters
+cd 'C:\Users\oconn\Documents\Research\OptimalJoinings\OTC\OTC';  % Set home directory
 cost_style = 'consonant';  % 'consonant' or 'layered'
 n_samples = 100;
 
@@ -13,8 +14,8 @@ xi = 50;
 sink_iter = 20;
 
 % Construct song list
-cd 'C:\Users\oconn\Dropbox\Research\OTC_Experiments\ClassicalMusic\FittedModels\LHMM';
-file_list = dir;
+lhmm_dir = 'ClassicalMusic\FittedModels\LHMM\';
+file_list = dir(lhmm_dir);
 file_list = {file_list.name}';
 song_list = [];
 for i=1:length(file_list)
@@ -49,24 +50,22 @@ for song1_idx=1:length(song_list)
     for song2_idx=(song1_idx+1):length(song_list)
         song_iter = song_iter + 1;
         
-        cd 'C:\Users\oconn\Dropbox\Research\OTC_Experiments\ClassicalMusic\FittedModels\LHMM';
-        
         % Read data     
         song1_str = song_list{song1_idx};
-        notes1 = readmatrix(strcat(song1_str, 'notes.csv'));
-        phi1_0 = readmatrix(strcat(song1_str, 'phi0.csv'));
-        phi1_1 = readmatrix(strcat(song1_str, 'phi1.csv'));        
-        phi1_2 = readmatrix(strcat(song1_str, 'phi2.csv'));
-        pi1 = readmatrix(strcat(song1_str, 'pi.csv'));
-        tmat1 = readmatrix(strcat(song1_str, 'tmat.csv'));
+        notes1 = readmatrix(strcat(lhmm_dir, song1_str, 'notes.csv'));
+        phi1_0 = readmatrix(strcat(lhmm_dir, song1_str, 'phi0.csv'));
+        phi1_1 = readmatrix(strcat(lhmm_dir, song1_str, 'phi1.csv'));        
+        phi1_2 = readmatrix(strcat(lhmm_dir, song1_str, 'phi2.csv'));
+        pi1 = readmatrix(strcat(lhmm_dir, song1_str, 'pi.csv'));
+        tmat1 = readmatrix(strcat(lhmm_dir, song1_str, 'tmat.csv'));
 
         song2_str = song_list{song2_idx};
-        notes2 = readmatrix(strcat(song2_str, 'notes.csv'));
-        phi2_0 = readmatrix(strcat(song2_str, 'phi0.csv'));
-        phi2_1 = readmatrix(strcat(song2_str, 'phi1.csv'));
-        phi2_2 = readmatrix(strcat(song2_str, 'phi2.csv'));
-        pi2 = readmatrix(strcat(song2_str, 'pi.csv'));
-        tmat2 = readmatrix(strcat(song2_str, 'tmat.csv'));
+        notes2 = readmatrix(strcat(lhmm_dir, song2_str, 'notes.csv'));
+        phi2_0 = readmatrix(strcat(lhmm_dir, song2_str, 'phi0.csv'));
+        phi2_1 = readmatrix(strcat(lhmm_dir, song2_str, 'phi1.csv'));
+        phi2_2 = readmatrix(strcat(lhmm_dir, song2_str, 'phi2.csv'));
+        pi2 = readmatrix(strcat(lhmm_dir, song2_str, 'pi.csv'));
+        tmat2 = readmatrix(strcat(lhmm_dir, song2_str, 'tmat.csv'));
         
         rng(315);
         n_hidden_states = size(tmat1);
@@ -74,8 +73,6 @@ for song1_idx=1:length(song_list)
         n_notes1 = length(unique(notes1));
         n_notes2 = length(unique(notes2));
 
-        cd 'C:\Users\oconn\Dropbox\Research\OTC_Experiments\ClassicalMusic';
-        
         disp(song1_str);
         disp(song2_str);
         
@@ -166,8 +163,6 @@ for song1_idx=1:length(song_list)
         [~, optcoup_entropicotc, ~] = entropic_otc(tmat1, tmat2, c, L, T, xi, sink_iter, 0);
         
         %% Compute expected costs
-        %c_vec = reshape(c_unnorm', n_hidden_states*n_hidden_states, []);
-        %cost_entropicotc = dot(get_stat_dist(optcoup_entropicotc), c_vec);
         entropic_gain = exact_tce(optcoup_entropicotc, c);
         cost_entropicotc = entropic_gain(1);
         exp_costs(song_iter,:) = {song1_str song2_str cost_exactotc cost_entropicotc};
@@ -202,7 +197,7 @@ for song1_idx=1:length(song_list)
 
 
         %% Convert notes to midi file
-        file_path = 'C:\Users\oconn\Dropbox\Research\OTC_Experiments\ClassicalMusic\GeneratedPieces';
+        file_path = 'ClassicalMusic\GeneratedPieces\';
         
         file_name = strcat(song1_str, song2_str, experiment_id, '_exact_otc');
         notes_to_midi(notes_exactotc, file_path, file_name);
@@ -213,13 +208,13 @@ for song1_idx=1:length(song_list)
 end
 
 % Save expected costs
+data_path = 'ClassicalMusic\Data\';
 exp_costs_table = cell2table(exp_costs);
 exp_costs_table.Properties.VariableNames = {'piece1' 'piece2' 'exactotc_cost' 'entropicotc_cost'};
 disp(exp_costs_table);
-writetable(exp_costs_table, append('music_exp_', experiment_id, '_expcosts.csv'));
+writetable(exp_costs_table, append(data_path, 'music_exp_', experiment_id, '_expcosts.csv'));
 
-%% Clustering
-
+%% Distance matrices
 % Make distance matrices
 exactotc_distances = zeros(n_songs);
 entropicotc_distances = zeros(n_songs);
@@ -238,9 +233,9 @@ for idx1=1:n_songs
 end
 
 % Save distance matrices
-writecell(song_list, append('music_exp_', experiment_id, '_song_list_.csv'));
-writecell(key_list, append('music_exp_', experiment_id, '_key_list_.csv'));
-writecell(composer_list, append('music_exp_', experiment_id, '_composer_list_.csv'));
-writematrix(exactotc_distances, append('music_exp_', experiment_id, '_exactotc_distmat.csv'));
-writematrix(entropicotc_distances, append('music_exp_', experiment_id, '_entropicotc_distmat.csv'));
+writecell(song_list, append(data_path, 'music_exp_', experiment_id, '_song_list_.csv'));
+writecell(key_list, append(data_path, 'music_exp_', experiment_id, '_key_list_.csv'));
+writecell(composer_list, append(data_path, 'music_exp_', experiment_id, '_composer_list_.csv'));
+writematrix(exactotc_distances, append(data_path, 'music_exp_', experiment_id, '_exactotc_distmat.csv'));
+writematrix(entropicotc_distances, append(data_path, 'music_exp_', experiment_id, '_entropicotc_distmat.csv'));
 
