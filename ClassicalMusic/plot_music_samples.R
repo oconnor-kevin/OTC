@@ -7,7 +7,7 @@ library(gtable)
 homedir <- getwd() # Set home directory
 savedir <- getwd()  # Directory to save plots in. Defaults to home directory.
 datadir <- file.path(homedir, "GeneratedPieces") 
-expid <- "0" # Set experiment ID to select results from the correct run.
+expid <- "2021_09_16_12_32_17" # Set experiment ID to select results from the correct run.
 piece_str <- "bach-book1-fugue02-cminorbeethoven-piano-sonata-pathetique-2-cminor"
 piece1_name <- "Bach - Book 1, Fugue 2"
 piece2_name <- "Beethoven - Piano Sonata Pathetique, 2nd Movement"
@@ -56,7 +56,7 @@ notes2_df["time"] <- 1:nrow(notes2_df)
 
 # Make plot
 notes_df <- rbind(notes1_df, notes2_df)
-notes_df$piece <- c(rep(piec1_name, nrow(notes1_df)), rep(piece2_name, nrow(notes2_df)))
+notes_df$piece <- c(rep(piece1_name, nrow(notes1_df)), rep(piece2_name, nrow(notes2_df)))
 
 ggplot(notes_df) + 
   scale_x_continuous(name="Time", expand=c(0, 0), breaks=seq(1, nrow(notes1_df), 4)) + 
@@ -73,4 +73,4 @@ ggplot(notes_df) +
   guides(fill = guide_legend(reverse = TRUE)) +
   scale_fill_brewer(palette="PuBu", name="Consonance") + 
   facet_wrap(~ piece, nrow=2) + 
-  ggsave(file.path(savedir, "exactotc_samples.png"), height=6, width=6.49)
+  ggsave(file.path(savedir, paste0("music_exp_", exp_id, piece_str, "_exactotc_samples.png")), height=6, width=6.49)
