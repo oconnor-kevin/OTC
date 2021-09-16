@@ -2,6 +2,8 @@
 % music_experiment.m
 %
 
+rng(315);
+
 % Experiment parameters
 cd 'C:\Users\oconn\Documents\Research\OptimalJoinings\OTC\OTC';  % Set home directory
 cost_style = 'consonant';  % 'consonant' or 'layered'
@@ -27,7 +29,6 @@ for i=1:length(file_list)
     end
 end
 song_list = unique(song_list);
-song_list = song_list(1:5);  % Short list for testing
 
 composer_list = [];
 key_list = [];
@@ -67,7 +68,6 @@ for song1_idx=1:length(song_list)
         pi2 = readmatrix(strcat(lhmm_dir, song2_str, 'pi.csv'));
         tmat2 = readmatrix(strcat(lhmm_dir, song2_str, 'tmat.csv'));
         
-        rng(315);
         n_hidden_states = size(tmat1);
         n_hidden_states = n_hidden_states(1);
         n_notes1 = length(unique(notes1));
