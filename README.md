@@ -12,7 +12,7 @@ In order to run ExactOTC for transition matrices Px and Py with a cost matrix c,
 [exp_cost, P, ~] = exact_otc(Px, Py, c, 0)
 ```
 
-Note that the last argument indicates whether the runs should be timed. If you would like to time each iteration, run
+Note that the last argument indicates whether the runs should be timed (for the runtime experiment). In practice, one will typically call `exact_otc` with this flag set to 0. However, if you would like to run the algorithm and time each iteration, run
 
 ```
 [exp_cost, P, times] = exact_otc(Px, Py, c, 1)
