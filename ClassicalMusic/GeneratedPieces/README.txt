@@ -1,0 +1,1 @@
+Sampled sequences will be stored in this directory as .csv and .mid files.
