@@ -1,8 +1,7 @@
 %%
 % exact_tce.m
 %
-% Given a transition coupling P and a cost vector c, performs exact
-% transition coupling evaluation. Returns gain and bias vectors g and h.
+% Exact transition coupling evaluation.
 
 function [g, h] = exact_tce(P, c)
 d = size(P, 1);

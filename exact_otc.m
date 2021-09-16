@@ -1,14 +1,15 @@
 %%
 % exact_otc.m
 %
-% Run exact policy iteration to get the optimal transition coupling.
+% Exact transition coupling iteration.
 
-function [P, times] = exact_otc(Px, Py, c, time_iters)
+function [exp_cost, P, times] = exact_otc(Px, Py, c, time_iters)
 dx = size(Px, 1);
 dy = size(Py, 1);
 
 P_old = zeros(dx*dy);
 P = get_ind_tc(Px, Py);
+exp_cost = 0;
 times = [];
 iter_ctr = 0;
 while max(max(abs(P-P_old))) > 1e-10
@@ -22,7 +23,8 @@ while max(max(abs(P-P_old))) > 1e-10
     
     % Policy evaluation.
     [g, h] = exact_tce(P, c);
-    disp(min(g));
+    exp_cost = min(g);
+    disp(exp_cost);
     
     % Policy improvement.
     P = exact_tci(g, h, P_old, Px, Py);

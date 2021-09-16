@@ -1,9 +1,7 @@
 %%
 % approx_tce.m
 %
-% Given a transition coupling P, cost vector c, and scalars L and T,
-% performs approximate transition coupling evaluation. Returns gain and 
-% bias vectors g and h.
+% Approximate transition coupling evaluation.
 
 function [g, h] = approx_tce(P, c, L, T)
 d = size(P, 1);
